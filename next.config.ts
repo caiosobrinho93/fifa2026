@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // If deploying to https://caiosobrinho93.github.io/fifa2026/
-  // basePath: '/fifa2026',
-  // assetPrefix: '/fifa2026',
+  // Set the base path to the repository name for GitHub Pages
+  basePath: '/fifa2026',
+  assetPrefix: '/fifa2026',
 };
 
 export default nextConfig;
