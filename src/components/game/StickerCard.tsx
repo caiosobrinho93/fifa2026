@@ -44,7 +44,7 @@ export function StickerCard({
   isOwned = true,
   isShiny, 
   isGolden,
-  hasEssence = (player as Record<string, unknown>).has_essence as boolean,
+  hasEssence = player.has_essence,
   quantity, 
   className,
   rarityOverride,
