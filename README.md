@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏆 Copa Album 2026
 
-## Getting Started
+Um aplicativo premium de álbuns de figurinhas digitais para a Copa do Mundo FIFA 2026, inspirado em jogos como Hearthstone e Clash Royale.
 
-First, run the development server:
+## 🚀 Tecnologias
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS 4, Framer Motion, Lucide React.
+- **Backend**: Supabase (PostgreSQL, RLS, Auth).
+- **Mobile**: PWA ready, Capacitor ready.
+- **Animações**: Framer Motion & Canvas-confetti.
+- **3D**: React Three Fiber / Drei (infraestrutura pronta).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Instalação
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone o repositório.
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Configure as variáveis de ambiente no arquivo `.env.local`:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=seu_url_do_supabase
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima
+   ```
+4. Execute o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📂 Estrutura do Projeto
 
-## Learn More
+- `src/app`: Rotas e páginas (Home, Packs, Album, Mercado, Trocas, Desafios).
+- `src/components/game`: Componentes lógicos do jogo (Cartas, Abertura de Packs, Grid do Álbum).
+- `src/components/layout`: Componentes de interface global (Header, BottomNav).
+- `src/lib`: Configurações de serviços (Supabase) e utilitários.
+- `src/types`: Definições de interfaces TypeScript.
+- `src/styles`: Estilos globais e tokens de design.
 
-To learn more about Next.js, take a look at the following resources:
+## ✨ Recursos Implementados
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- ✅ **Sistema de Abertura de Packs**: Animações cinematográficas e efeitos de partículas.
+- ✅ **Álbum Digital**: Visualização de coleção com progresso e slots vazios.
+- ✅ **Marketplace**: Listagem de cartas e sistema de tendências.
+- ✅ **Trocas**: Interface de propostas de troca entre usuários.
+- ✅ **Economia Virtual**: Gestão de moedas (Coins) e gemas (Gems).
+- ✅ **Holographic Cards**: Efeitos visuais premium em cartas raras.
+- ✅ **PWA**: Manifesto configurado para instalação mobile.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🗄️ Banco de Dados
 
-## Deploy on Vercel
+O esquema do banco de dados está localizado em `src/lib/supabase/schema.sql`. Ele inclui tabelas para perfis, jogadores, cartas de usuários, marketplace, trocas e transações.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Desenvolvido com ❤️ para a Copa do Mundo 2026.

@@ -1,26 +1,211 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-background: oklch(0.08 0.01 240);
+  --color-foreground: oklch(0.98 0 0);
+  --color-primary: #f59e0b; /* Gold */
+  --color-secondary: #3b82f6; /* Rare Blue */
+  --color-accent: #a855f7; /* Epic Purple */
+  --color-mythic: #fb923c; /* Mythic Orange */
+  --color-success: #10b981;
+  --color-gold: #f59e0b;
+  --color-surface: #0a0a0c;
+  
+  --font-outfit: var(--font-outfit), sans-serif;
+  --font-bebas: var(--font-bebas-neue), sans-serif;
+  --font-jakarta: var(--font-plus-jakarta), sans-serif;
+  
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-outfit);
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-bebas);
+    letter-spacing: 0.05em;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .glass {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .shadow-gold-glow {
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
+  }
+  
+  /* NEON MYTHIC GLOW */
+  .shadow-mythic-glow {
+    box-shadow: 0 0 50px rgba(251, 146, 60, 0.8), 0 0 100px rgba(251, 146, 60, 0.4);
+  }
+}
+
+/* CARDS GRID SYSTEM */
+.card-grid-mobile {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  justify-items: center;
+}
+
+@media (min-width: 640px) {
+  .card-grid-mobile {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-grid-mobile {
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+/* PREMIUM BORDER BEAM ANIMATION */
+.border-beam-container {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  z-index: 50;
+  pointer-events: none;
+  padding: 3px;
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+}
+
+.border-beam-light {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background: conic-gradient(
+    from -90deg,
+    #fff 0deg,
+    var(--beam-color, #f59e0b) 10deg,
+    var(--beam-color, #f59e0b) 40deg,
+    transparent 120deg,
+    transparent 360deg
+  );
+  animation: border-beam 3s linear infinite;
+  filter: blur(1px);
+}
+
+@keyframes border-beam {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+
+/* RARITY STYLES */
+.sticker-frame {
+  border-width: 2px;
+  transition: all 0.3s;
+}
+
+.frame-common { border-color: #334155; background-color: #0f172a; }
+.frame-rare { border-color: #3b82f6; background-color: #082f49; }
+.frame-epic { border-color: #a855f7; background-color: #3b0764; }
+.frame-legendary { border-color: #f59e0b; background-color: #451a03; }
+.frame-mythic { 
+  border-color: #fb923c; 
+  background-color: #431407; 
+  animation: mythic-neon 3s ease-in-out infinite;
+}
+
+@keyframes mythic-neon {
+  0%, 100% { border-color: #fb923c; box-shadow: 0 0 20px rgba(251, 146, 60, 0.4); }
+  50% { border-color: #ffedd5; box-shadow: 0 0 40px rgba(251, 146, 60, 0.8); }
+}
+
+/* GOLDEN CARD SYSTEM */
+.frame-golden {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #451a03 0%, #78350f 50%, #451a03 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.frame-golden::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
+  animation: pulse-gold 4s infinite;
+}
+
+@keyframes pulse-gold {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.frame-golden::after {
+  content: "";
+  position: absolute;
+  inset: -100%;
+  background: linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 55%
+  );
+  animation: golden-shimmer 4s infinite;
+  pointer-events: none;
+}
+
+@keyframes golden-shimmer {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(50%, 50%) rotate(0deg); }
+}
+
+.holographic {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.1) 100%);
+  background-size: 200% 200%;
+  animation: holo 3s linear infinite;
+}
+
+@keyframes holo {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 200%; }
+}
+
+.animate-star {
+  animation: star-pulse 2s ease-in-out infinite;
+}
+
+@keyframes star-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
