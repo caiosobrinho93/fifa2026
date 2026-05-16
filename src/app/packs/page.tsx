@@ -5,163 +5,276 @@ import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  PackageOpen, 
-  Sparkles, 
   Coins, 
   Gem, 
-  ChevronRight,
-  Star,
-  Zap,
-  Trophy
+  ArrowRight,
+  Sparkles
 } from "lucide-react";
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { PackOpener } from '@/components/game/PackOpener';
+import { Player, Pack } from '@/types/game';
+import { MOCK_PLAYERS } from '@/lib/mock-data';
 
-const PACKS = [
+interface PackConfig {
+  id: string;
+  name: string;
+  price: number;
+  currency: 'coins' | 'gems';
+  cards: number;
+  probabilities: { common: string; rare: string; epic: string; legendary: string };
+  bgImage: string;
+  accentColor: string;
+}
+
+const PACKS: PackConfig[] = [
   {
-    id: 'basic',
-    name: 'Pack Inicial',
+    id: 'iniciante',
+    name: 'Pack Iniciante',
     price: 500,
     currency: 'coins',
     cards: 3,
-    probabilities: { mythic: '0.1%', legendary: '2%', epic: '10%', rare: '30%', common: '57.9%' },
-    color: 'border-slate-500',
-    glow: 'shadow-slate-500/20',
-    icon: <PackageOpen className="text-slate-400" size={40} />
+    probabilities: { common: '60%', rare: '25%', epic: '10%', legendary: '5%' },
+    bgImage: '/packs/iniciante.png',
+    accentColor: '#64748b'
   },
   {
-    id: 'legendary',
-    name: 'Pack Lendário',
-    price: 2500,
+    id: 'raro',
+    name: 'Pack Raro',
+    price: 1500,
     currency: 'coins',
     cards: 5,
-    probabilities: { mythic: '1%', legendary: '15%', epic: '30%', rare: '54%', common: '0%' },
-    color: 'border-gold',
-    glow: 'shadow-gold-glow',
-    icon: <Trophy className="text-gold" size={40} />
+    probabilities: { common: '30%', rare: '40%', epic: '20%', legendary: '10%' },
+    bgImage: '/packs/raro.png',
+    accentColor: '#3b82f6'
   },
   {
-    id: 'mythic',
-    name: 'Pack Mítico',
-    price: 500,
-    currency: 'gems',
+    id: 'epico',
+    name: 'Pack Épico',
+    price: 3500,
+    currency: 'coins',
     cards: 5,
-    probabilities: { mythic: '10%', legendary: '40%', epic: '50%', rare: '0%', common: '0%' },
-    color: 'border-mythic',
-    glow: 'shadow-mythic-glow',
-    icon: <Sparkles className="text-mythic" size={40} />
+    probabilities: { common: '0%', rare: '30%', epic: '40%', legendary: '30%' },
+    bgImage: '/packs/epico.png',
+    accentColor: '#a855f7'
+  },
+  {
+    id: 'lendario',
+    name: 'Pack Lendário',
+    price: 750,
+    currency: 'gems',
+    cards: 7,
+    probabilities: { common: '0%', rare: '0%', epic: '50%', legendary: '50%' },
+    bgImage: '/packs/lendario.png',
+    accentColor: '#fbbf24'
   }
 ];
 
+const getRandomCards = (count: number): Player[] => {
+  const weights: Record<string, number> = {
+    common: 60,
+    rare: 25,
+    epic: 10,
+    legendary: 5
+  };
+
+  const cards: Player[] = [];
+  
+  for (let i = 0; i < count; i++) {
+    const rand = Math.random() * 100;
+    let rarity: string = 'common';
+    
+    let cumulative = 0;
+    for (const [r, weight] of Object.entries(weights)) {
+      cumulative += weight;
+      if (rand <= cumulative) {
+        rarity = r;
+        break;
+      }
+    }
+    
+    const filtered = MOCK_PLAYERS.filter(p => p.rarity === rarity);
+    const player = filtered.length > 0 
+      ? filtered[Math.floor(Math.random() * filtered.length)]
+      : MOCK_PLAYERS[Math.floor(Math.random() * MOCK_PLAYERS.length)];
+    
+    cards.push(player);
+  }
+  
+  return cards;
+};
+
 export default function PacksPage() {
+  const [selectedPack, setSelectedPack] = useState<PackConfig | null>(null);
+  const [openedCards, setOpenedCards] = useState<Player[]>([]);
   const [isOpening, setIsOpening] = useState(false);
 
-  const handleOpenPack = (packName: string) => {
+  const handleOpenPack = (pack: PackConfig) => {
+    if (pack.price > 12500 && pack.currency === 'coins') {
+      toast.error("Moedas insuficientes!");
+      return;
+    }
+    
+    setSelectedPack(pack);
     setIsOpening(true);
+    
     setTimeout(() => {
-      setIsOpening(false);
-      toast.success(`Você abriu o ${packName}! Verifique seu inventário.`);
-    }, 2000);
+      const cards = getRandomCards(pack.cards);
+      setOpenedCards(cards);
+    }, 1500);
+  };
+
+  const handleClosePackOpener = () => {
+    setIsOpening(false);
+    setSelectedPack(null);
+    setOpenedCards([]);
+    toast.success("Cards adicionados ao seu inventário!");
+  };
+
+  const getRarityLabel = (rarity: string) => {
+    switch(rarity) {
+      case 'legendary': return 'Lendário';
+      case 'epic': return 'Épico';
+      case 'rare': return 'Raro';
+      case 'common': return 'Comum';
+      default: return rarity;
+    }
+  };
+
+  const getRarityColor = (rarity: string) => {
+    switch(rarity) {
+      case 'legendary': return 'text-amber-400';
+      case 'epic': return 'text-purple-400';
+      case 'rare': return 'text-blue-400';
+      case 'common': return 'text-slate-400';
+      default: return 'text-white';
+    }
   };
 
   return (
-    <div className="bg-[#060608] min-h-screen text-white font-outfit pb-40">
+    <div className="bg-background min-h-screen text-white font-outfit pb-40">
       <Header />
       
-      <main className="pt-10 lg:pt-40 px-4 md:px-8 max-w-[1400px] mx-auto">
-        <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-20">
-           <div className="space-y-6">
-              <h1 className="text-7xl md:text-8xl font-black italic uppercase font-bebas tracking-wider leading-none">
-                Loja de <span className="text-primary">Packs</span>
-              </h1>
-              <p className="text-white/40 text-lg font-bold uppercase tracking-[0.2em] italic max-w-xl">
-                 Tente a sorte e obtenha os cards mais raros da Copa 2026. Novos packs toda semana.
-              </p>
+      <main className="pt-32 md:pt-40 px-4 md:px-8 max-w-[1400px] mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 mb-16"
+        >
+           <div className="space-y-4">
+               <h1 className="text-6xl md:text-7xl font-black italic uppercase font-bebas tracking-wider leading-none">
+                 Pack <span className="text-primary">Collection</span>
+               </h1>
+               <p className="text-white/30 text-[10px] font-bold uppercase tracking-[0.3em] italic">
+                 Abra e descubra cartas exclusivas no mercado live
+               </p>
            </div>
            
-           <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3 bg-white/5 px-6 py-4 rounded-3xl border border-white/5">
-                 <Coins size={20} className="text-gold" />
-                 <span className="text-2xl font-black italic font-bebas">12,500</span>
+           <div className="flex items-center gap-4 bg-white/[0.03] px-6 py-4 rounded-xl border border-white/5 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                    <Coins size={20} className="text-amber-400" />
+                 </div>
+                 <span className="text-2xl font-black italic font-bebas tracking-wider text-amber-400">12.500</span>
+              </div>
+              <div className="w-px h-8 bg-white/10" />
+              <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
+                    <Gem size={20} className="text-purple-400" />
+                 </div>
+                 <span className="text-2xl font-black italic font-bebas tracking-wider text-purple-400">450</span>
               </div>
            </div>
-        </div>
+        </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-10">
-           {PACKS.map((pack) => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+           {PACKS.map((pack, index) => (
              <motion.div 
-               key={pack.id}
-               whileHover={{ y: -10 }}
-               className={cn(
-                 "relative group overflow-hidden rounded-[48px] bg-[#0a0a0c] border p-12 transition-all",
-                 pack.color,
-                 pack.glow
-               )}
+                key={pack.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                className="relative group overflow-hidden rounded-2xl aspect-[3/4]"
              >
-                {/* Pack Visual */}
-                <div className="relative z-10 flex flex-col items-center text-center space-y-10">
-                   <div className="w-32 h-40 bg-white/2 rounded-3xl border border-white/5 flex items-center justify-center relative overflow-hidden group-hover:scale-110 transition-transform duration-500">
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
-                      {pack.icon}
-                      <Sparkles className="absolute top-4 right-4 text-white/10 animate-pulse" size={20} />
-                   </div>
-
-                   <div className="space-y-3">
-                      <h3 className="text-4xl font-black italic uppercase font-bebas tracking-widest">{pack.name}</h3>
-                      <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">{pack.cards} CARDS POR PACK</p>
-                   </div>
-
-                   <div className="w-full space-y-4 pt-6 border-t border-white/5">
-                      <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                         <span className="text-white/40 italic">Mítico</span>
-                         <span className="text-mythic">{pack.probabilities.mythic}</span>
+                <div 
+                  className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                  style={{ backgroundImage: `url(${pack.bgImage})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                
+                <div className="absolute inset-0 flex items-end p-6">
+                   <div className="w-full space-y-4">
+                      <div>
+                        <h3 className="text-3xl font-black italic uppercase font-bebas tracking-wider mb-1 drop-shadow-lg">{pack.name}</h3>
+                        <div className="flex items-center gap-2">
+                          {Array.from({ length: pack.cards }).map((_, i) => (
+                            <div key={i} className="w-4 h-6 bg-white/30 rounded-sm backdrop-blur-sm" />
+                          ))}
+                          <span className="text-[10px] font-bold text-white/70 ml-2 uppercase">{pack.cards} Cards</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                         <span className="text-white/40 italic">Lendário</span>
-                         <span className="text-gold">{pack.probabilities.legendary}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                         <span className="text-white/40 italic">Épico</span>
-                         <span className="text-accent">{pack.probabilities.epic}</span>
-                      </div>
-                   </div>
 
-                   <button 
-                     onClick={() => handleOpenPack(pack.name)}
-                     className="w-full py-6 bg-white/5 hover:bg-white/10 text-white font-black rounded-3xl text-xs uppercase tracking-[0.3em] italic transition-all border border-white/10 flex items-center justify-center gap-4 group"
-                   >
-                      <Coins size={16} className={cn(pack.currency === 'coins' ? "text-gold" : "text-secondary")} />
-                      {pack.price} {pack.currency === 'coins' ? 'Coins' : 'Gems'}
-                   </button>
+                      <div className="space-y-2">
+                        {Object.entries(pack.probabilities).map(([rarity, value]) => (
+                          value !== '0%' && (
+                            <div key={rarity} className="flex justify-between items-center">
+                               <span className={cn("text-[9px] font-bold uppercase tracking-widest", getRarityColor(rarity))}>
+                                 {getRarityLabel(rarity)}
+                               </span>
+                               <span className="text-[11px] font-black text-white/60 italic">{value}</span>
+                            </div>
+                          )
+                        ))}
+                      </div>
+
+                      <button 
+                        onClick={() => handleOpenPack(pack)}
+                        className={cn(
+                          "w-full py-3 px-4 rounded-xl font-black text-sm uppercase tracking-[0.15em] italic transition-all duration-300 flex items-center justify-center gap-2",
+                          pack.currency === 'gems' 
+                            ? "bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white shadow-lg shadow-purple-500/30"
+                            : "bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white shadow-lg shadow-primary/30"
+                        )}
+                      >
+                        {pack.currency === 'gems' ? <Gem size={16} /> : <Coins size={16} />}
+                        <span>{pack.price}</span>
+                        <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                      </button>
+                   </div>
                 </div>
 
-                {/* Bg Decoration */}
-                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/2 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute top-4 right-4">
+                  <Sparkles className="text-white/50 animate-pulse" size={24} />
+                </div>
              </motion.div>
            ))}
         </div>
       </main>
 
       <AnimatePresence>
-        {isOpening && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-2xl flex items-center justify-center flex-col gap-12"
-          >
-             <motion.div
-               animate={{ 
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 10, -10, 0]
-               }}
-               transition={{ duration: 1.5, repeat: Infinity }}
-               className="w-48 h-64 bg-primary rounded-3xl flex items-center justify-center shadow-[0_0_100px_rgba(245,158,11,0.5)]"
-             >
-                <PackageOpen size={80} className="text-black" />
-             </motion.div>
-             <h2 className="text-4xl font-black italic uppercase font-bebas tracking-widest animate-pulse">Abrindo Pack...</h2>
-          </motion.div>
+        {isOpening && selectedPack && (
+          <PackOpener 
+            pack={{
+              id: selectedPack.id,
+              name: selectedPack.name,
+              description: '',
+              price_coins: selectedPack.currency === 'coins' ? selectedPack.price : 0,
+              price_gems: selectedPack.currency === 'gems' ? selectedPack.price : 0,
+              card_count: selectedPack.cards,
+              probabilities: {
+                common: parseFloat(selectedPack.probabilities.common) / 100,
+                rare: parseFloat(selectedPack.probabilities.rare) / 100,
+                epic: parseFloat(selectedPack.probabilities.epic) / 100,
+                legendary: parseFloat(selectedPack.probabilities.legendary) / 100
+              },
+              rarity: selectedPack.id === 'lendario' ? 'legendary' : 
+                     selectedPack.id === 'epico' ? 'epic' : 
+                     selectedPack.id === 'raro' ? 'rare' : 'common'
+            }}
+            cards={openedCards.length > 0 ? openedCards : getRandomCards(selectedPack.cards)}
+            onClose={handleClosePackOpener}
+          />
         )}
       </AnimatePresence>
 

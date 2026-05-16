@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans, Bebas_Neue, Poppins, Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { InventoryProvider } from "@/contexts/InventoryContext";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-plus-jakarta" });
@@ -24,12 +26,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${poppins.variable} ${inter.variable} ${plusJakarta.variable} ${bebasNeue.variable} ${outfit.variable}`}>
-      <body className="bg-background text-white selection:bg-primary/30 min-h-screen flex flex-col font-outfit antialiased">
-        <Toaster position="top-center" expand={true} richColors theme="dark" />
-        <main className="flex-1 overflow-x-hidden">
-          {children}
-        </main>
+    <html lang="pt-BR" className={`${poppins.variable} ${inter.variable} ${plusJakarta.variable} ${bebasNeue.variable} ${outfit.variable}`} suppressHydrationWarning>
+      <body className="bg-background text-white selection:bg-primary/30 min-h-screen flex flex-col font-outfit antialiased" suppressHydrationWarning>
+        <AuthProvider>
+          <InventoryProvider>
+            <Toaster position="top-center" expand={true} richColors theme="dark" />
+            <main className="flex-1 overflow-x-hidden">
+              {children}
+            </main>
+          </InventoryProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,98 +1,125 @@
 'use client';
 
 import { useState } from 'react';
-import { UserCard } from '@/types/game';
-import { MOCK_USER_CARDS, MOCK_PLAYERS } from '@/lib/mock-data';
+import { UserCard, Card } from '@/types/game';
+import { MOCK_USER_CARDS, MOCK_CARDS, MOCK_USER, drawRandomCards } from '@/lib/mock-data';
 import { toast } from 'sonner';
 
 export function useGame() {
-  const [coins, setCoins] = useState(12500);
+  const [coins, setCoins] = useState(MOCK_USER.coins);
+  const [gems, setGems] = useState(MOCK_USER.gems);
+  const [dust, setDust] = useState(MOCK_USER.dust);
   const [userCards, setUserCards] = useState<UserCard[]>(MOCK_USER_CARDS);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Buy a specific card
-  const buyCard = (playerId: string, price: number) => {
+  // Buscar card do usuário por card_id
+  const getUserCard = (cardId: string) => {
+    return userCards.find(c => c.card_id === cardId);
+  };
+
+  // Adicionar card ao usuário (ou incrementar quantidade)
+  const addCard = (cardId: string) => {
+    setUserCards(prev => {
+      const existing = prev.find(c => c.card_id === cardId);
+      if (existing) {
+        return prev.map(c => c.card_id === cardId ? { ...c, quantity: (c.quantity || 0) + 1 } : c);
+      }
+      return [...prev, { 
+        id: `uc-${Date.now()}`,
+        user_id: MOCK_USER.id, 
+        card_id: cardId, 
+        quantity: 1, 
+        is_pasted: false, 
+        acquired_at: new Date().toISOString()
+      }];
+    });
+  };
+
+  // Comprar card específico
+  const buyCard = (cardId: string, price: number) => {
     if (coins < price) {
       toast.error("Moedas insuficientes!");
       return false;
     }
 
     setCoins(prev => prev - price);
-    
-    setUserCards(prev => {
-      const existing = prev.find(c => c.player_id === playerId);
-      if (existing) {
-        return prev.map(c => c.player_id === playerId ? { ...c, quantity: c.quantity + 1 } : c);
-      }
-      return [...prev, { 
-        id: Math.random().toString(), 
-        user_id: 'user1', 
-        player_id: playerId, 
-        quantity: 1, 
-        is_pasted: false, 
-        is_shiny: false,
-        is_locked: false,
-        is_golden: false,
-        acquired_at: new Date().toISOString()
-      }];
-    });
+    addCard(cardId);
 
     toast.success("Card adquirido com sucesso!");
     return true;
   };
 
-  // Open a pack and get random cards
-  const openPack = (cardCount: number, price: number) => {
-    if (coins < price) {
-      toast.error("Moedas insuficientes!");
+  // Abrir pack e sortear cards
+  const openPack = (cardCount: number, price: number, currency: 'coins' | 'gems' = 'coins', minRarity: 'common' | 'rare' | 'epic' | 'legendary' = 'common') => {
+    const currentBalance = currency === 'coins' ? coins : gems;
+    
+    if (currentBalance < price) {
+      toast.error(currency === 'coins' ? "Moedas insuficientes!" : "Gemas insuficientes!");
       return null;
     }
 
-    setCoins(prev => prev - price);
+    if (currency === 'coins') {
+      setCoins(prev => prev - price);
+    } else {
+      setGems(prev => prev - price);
+    }
     
-    const newCards = Array.from({ length: cardCount }).map(() => {
-      return MOCK_PLAYERS[Math.floor(Math.random() * MOCK_PLAYERS.length)];
-    });
+    const newCards = drawRandomCards(cardCount, minRarity);
 
-    // Update state
-    newCards.forEach(player => {
-       setUserCards(prev => {
-          const existing = prev.find(c => c.player_id === player.id);
-          if (existing) {
-            return prev.map(c => c.player_id === player.id ? { ...c, quantity: c.quantity + 1 } : c);
-          }
-          return [...prev, { 
-            id: Math.random().toString(), 
-            user_id: 'user1', 
-            player_id: player.id, 
-            quantity: 1, 
-            is_pasted: false, 
-            is_shiny: false,
-            is_locked: false,
-            is_golden: false,
-            acquired_at: new Date().toISOString()
-          }];
-       });
+    newCards.forEach(card => {
+      addCard(card.id);
     });
 
     return newCards;
   };
 
-  // Paste a card in the album
-  const pasteCard = (playerId: string) => {
-    const card = userCards.find(c => c.player_id === playerId);
-    if (!card || card.quantity <= 0) return false;
+  // Colar card no álbum
+  const pasteCard = (cardId: string) => {
+    const card = getUserCard(cardId);
+    if (!card || (card.quantity || 0) <= 0) return false;
 
-    setUserCards(prev => prev.map(c => c.player_id === playerId ? { ...c, is_pasted: true, quantity: c.quantity - 1 } : c));
+    setUserCards(prev => prev.map(c => c.card_id === cardId ? { ...c, is_pasted: true, quantity: (c.quantity || 1) - 1 } : c));
     return true;
+  };
+
+  // Destruir card e ganhar poeira
+  const destroyCard = (cardId: string) => {
+    const card = getUserCard(cardId);
+    if (!card || (card.quantity || 0) <= 0) {
+      toast.error("Card não encontrado!");
+      return 0;
+    }
+
+    const cardData = MOCK_CARDS.find(c => c.id === cardId);
+    const dustReward = cardData?.dust_reward || 10;
+
+    setUserCards(prev => prev.map(c => c.card_id === cardId ? { ...c, quantity: (c.quantity || 1) - 1 } : c));
+    setDust(prev => prev + dustReward);
+
+    toast.success(`+${dustReward} poeira estelar`);
+    return dustReward;
+  };
+
+  // Obter todos os cards do usuário com dados completos
+  const getUserCardsWithDetails = () => {
+    return userCards.map(uc => ({
+      ...uc,
+      card: MOCK_CARDS.find(c => c.id === uc.card_id)!
+    })).filter(uc => uc.card);
   };
 
   return {
     coins,
+    gems,
+    dust,
     userCards,
     isLoading,
+    getUserCard,
+    addCard,
     buyCard,
     openPack,
-    pasteCard
+    pasteCard,
+    destroyCard,
+    getUserCardsWithDetails
   };
 }

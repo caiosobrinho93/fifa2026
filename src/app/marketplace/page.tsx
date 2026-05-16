@@ -23,86 +23,71 @@ export default function MarketplacePage() {
   };
 
   return (
-    <div className="pb-32 pt-24 px-4 max-w-7xl mx-auto space-y-8">
-      <CardDetailsModal 
-        player={selectedPlayer}
-        isOpen={!!selectedPlayer}
-        onClose={() => setSelectedPlayer(null)}
-        onBuy={() => selectedPlayer && handleBuy(selectedPlayer.name)}
-        showBuyOption={true}
-      />
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-black italic text-white">MERCADO</h1>
-          <p className="text-xs text-primary font-black uppercase tracking-widest mt-1">Negocie com colecionadores globais</p>
-        </div>
-        <div className="flex gap-4 bg-[#0f172a] px-6 py-4 rounded-3xl border border-white/5 shadow-2xl">
-          <div className="flex items-center gap-2">
-            <TrendingUp size={20} className="text-success" />
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black text-white/30 uppercase">Volume 24h</span>
-              <span className="text-xs font-black text-white">1.2M Coins</span>
+    <div className="bg-background min-h-screen text-white font-outfit selection:bg-primary/30">
+      <Header />
+      
+      <main className="pb-40 pt-32 md:pt-40 px-4 md:px-8 max-w-[1600px] mx-auto space-y-12">
+        <CardDetailsModal 
+          player={selectedPlayer}
+          isOpen={!!selectedPlayer}
+          onClose={() => setSelectedPlayer(null)}
+          onBuy={() => selectedPlayer && handleBuy(selectedPlayer.name)}
+          showBuyOption={true}
+        />
+        
+        {/* TITULO PADRONIZADO */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 mb-16"
+        >
+          <div className="space-y-4">
+            <h1 className="text-6xl md:text-8xl font-black italic uppercase font-bebas tracking-wider leading-none">
+              Mercado <span className="text-primary">Live</span>
+            </h1>
+            <p className="text-white/30 text-[10px] font-bold uppercase tracking-[0.3em] italic">Negocie ativos digitais com colecionadores globais</p>
+          </div>
+          <div className="flex gap-4 bg-white/[0.03] px-6 py-4 rounded-xl border border-white/5 backdrop-blur-md">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center border border-success/20">
+                <TrendingUp size={20} className="text-success" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Volume 24h</span>
+                <span className="text-2xl font-black italic font-bebas tracking-wider text-white">1.2M COINS</span>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={20} />
-          <input 
-            type="text" 
-            placeholder="Buscar jogador, seleção ou raridade..."
-            className="w-full bg-[#0f172a] border border-white/5 rounded-full py-4 pl-14 pr-6 text-sm focus:outline-none focus:border-primary/50 transition-all shadow-xl text-white placeholder:text-white/20"
-          />
-        </div>
-        <button className="flex items-center justify-center gap-3 px-8 py-4 bg-[#0f172a] rounded-full text-white/60 hover:text-white transition-all border border-white/5 font-black text-xs uppercase tracking-widest shadow-xl">
-          <SlidersHorizontal size={18} />
-          Filtros
-        </button>
-      </div>
-
-      {/* Market Trends */}
-      <div className="bg-[#0f172a] rounded-[40px] p-8 border border-white/5 bg-gradient-to-br from-primary/5 to-transparent shadow-2xl">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="p-3 bg-success/10 rounded-2xl border border-success/10">
-            <TrendingUp size={24} className="text-success" />
+        {/* Busca e Filtros */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+            <input 
+              type="text" 
+              placeholder="BUSCAR JOGADOR, SELEÇÃO OU RARIDADE..."
+              className="w-full bg-white/[0.02] border border-white/5 rounded-sm py-4 pl-14 pr-6 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-primary/50 transition-all shadow-xl text-white placeholder:text-white/20"
+            />
           </div>
-          <h3 className="text-lg font-black italic uppercase tracking-widest text-white">Tendências de Valorização</h3>
+          <button className="flex items-center justify-center gap-3 px-8 py-4 bg-white/[0.02] rounded-sm text-white/60 hover:text-white transition-all border border-white/5 font-black text-[10px] uppercase tracking-widest shadow-xl italic">
+            <SlidersHorizontal size={16} />
+            FILTROS
+          </button>
         </div>
-        <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4">
-          {[
-            { name: 'Vinícius Júnior', change: '+12.4%', color: 'text-success', rarity: 'legendary' },
-            { name: 'Kylian Mbappé', change: '+5.2%', color: 'text-success', rarity: 'legendary' },
-            { name: 'Lionel Messi', change: '-1.8%', color: 'text-danger', rarity: 'mythic' },
-            { name: 'Lamine Yamal', change: '+24.1%', color: 'text-success', rarity: 'rare' },
-          ].map((trend) => (
-            <motion.div 
-              key={trend.name} 
-              whileHover={{ scale: 1.05 }}
-              className="flex flex-col gap-2 min-w-[200px] bg-black/40 p-6 rounded-3xl border border-white/5 hover:border-primary/30 transition-all shadow-xl"
-            >
-              <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">{trend.rarity}</span>
-              <span className="text-base font-black truncate italic text-white">{trend.name}</span>
-              <span className={cn("text-sm font-black italic", trend.color)}>{trend.change}</span>
-            </motion.div>
+
+        {/* Lista de Itens do Mercado */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-4">
+          {MOCK_PLAYERS.map((player) => (
+            <StickerCard 
+              key={player.id} 
+              player={player} 
+              onClick={() => setSelectedPlayer(player)}
+            />
           ))}
         </div>
-      </div>
+      </main>
 
-      {/* Market Items */}
-      <div className="grid card-grid-mobile gap-6 md:gap-10">
-        {MOCK_PLAYERS.map((player) => (
-          <StickerCard 
-            key={player.id} 
-            player={player} 
-            onClick={() => setSelectedPlayer(player)}
-          />
-        ))}
-      </div>
-
-      <Header />
       <BottomNav />
     </div>
   );

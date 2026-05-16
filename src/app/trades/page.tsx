@@ -25,17 +25,27 @@ export default function TradesPage() {
   };
 
   return (
-    <div className="pb-32 pt-24 px-4 max-w-5xl mx-auto space-y-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-black italic">TROCAS</h1>
-          <p className="text-xs text-slate-400 font-black uppercase tracking-widest mt-1">Negociações pendentes e histórico</p>
-        </div>
-        <button className="bg-primary hover:bg-primary/90 text-white font-black py-4 px-8 rounded-2xl shadow-glow transition-all active:scale-95 flex items-center gap-3 text-sm">
-          <ArrowLeftRight size={20} />
-          NOVA PROPOSTA
-        </button>
-      </div>
+    <div className="bg-background min-h-screen text-white font-outfit selection:bg-primary/30">
+      <Header />
+      
+      <main className="pb-40 pt-32 md:pt-40 px-4 md:px-8 max-w-[1400px] mx-auto space-y-12">
+        {/* TITULO PADRONIZADO */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 mb-16"
+        >
+          <div className="space-y-4">
+            <h1 className="text-6xl md:text-8xl font-black italic uppercase font-bebas tracking-wider leading-none">
+              Painel de <span className="text-primary">Trocas</span>
+            </h1>
+            <p className="text-white/30 text-[10px] font-bold uppercase tracking-[0.3em] italic">Negociações pendentes e histórico de transações</p>
+          </div>
+          <button className="bg-primary hover:bg-primary/90 text-white font-black py-4 px-8 rounded-xl shadow-glow transition-all active:scale-95 flex items-center gap-3 text-xs uppercase tracking-widest italic">
+            <ArrowLeftRight size={18} />
+            NOVA PROPOSTA
+          </button>
+        </motion.div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Active Trades */}
@@ -125,8 +135,8 @@ export default function TradesPage() {
         </div>
       </div>
 
-      <Header />
-      <BottomNav />
-    </div>
-  );
+        </main>
+        <BottomNav />
+      </div>
+    );
 }
