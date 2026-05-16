@@ -29,6 +29,7 @@ export interface UserCard {
   is_shiny: boolean;
   is_locked: boolean;
   is_golden: boolean;
+  is_pasted: boolean;
   quantity: number;
   acquired_at: string;
   player?: Player; // Joined data

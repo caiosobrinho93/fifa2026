@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Player, UserCard } from '@/types/game';
+import { useState } from 'react';
+import { UserCard } from '@/types/game';
 import { MOCK_USER_CARDS, MOCK_PLAYERS } from '@/lib/mock-data';
 import { toast } from 'sonner';
 
-// This hook simulates a Supabase backend but can be easily switched to real DB calls
 export function useGame() {
   const [coins, setCoins] = useState(12500);
   const [userCards, setUserCards] = useState<UserCard[]>(MOCK_USER_CARDS);
@@ -31,7 +30,10 @@ export function useGame() {
         player_id: playerId, 
         quantity: 1, 
         is_pasted: false, 
-        is_shiny: false 
+        is_shiny: false,
+        is_locked: false,
+        is_golden: false,
+        acquired_at: new Date().toISOString()
       }];
     });
 
@@ -65,7 +67,10 @@ export function useGame() {
             player_id: player.id, 
             quantity: 1, 
             is_pasted: false, 
-            is_shiny: false 
+            is_shiny: false,
+            is_locked: false,
+            is_golden: false,
+            acquired_at: new Date().toISOString()
           }];
        });
     });

@@ -71,6 +71,7 @@ export const MOCK_USER_CARDS: UserCard[] = [
     is_shiny: true,
     is_locked: false,
     is_golden: true,
+    is_pasted: false,
     quantity: 30,
     acquired_at: new Date().toISOString(),
   },
@@ -81,6 +82,7 @@ export const MOCK_USER_CARDS: UserCard[] = [
     is_shiny: false,
     is_locked: false,
     is_golden: false,
+    is_pasted: false,
     quantity: 1,
     acquired_at: new Date().toISOString(),
   },
@@ -91,6 +93,7 @@ export const MOCK_USER_CARDS: UserCard[] = [
     is_shiny: false,
     is_locked: false,
     is_golden: false,
+    is_pasted: false,
     quantity: 1,
     acquired_at: new Date().toISOString(),
   }
