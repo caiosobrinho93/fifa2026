@@ -35,11 +35,6 @@ export default function Home() {
       <Header />
       
       <main className="pb-40 pt-24 px-4 md:px-8 max-w-[1600px] mx-auto space-y-20">
-        {/* TITULO PADRONIZADO */}
-        <div>
-          <h1 className="text-4xl font-black italic text-white uppercase">INÍCIO</h1>
-          <p className="text-xs text-primary font-black uppercase tracking-widest mt-1">Sua jornada rumo ao topo do futebol mundial</p>
-        </div>
 
         {/* HERO SECTION - CLEAN BROADCAST VERSION */}
         <section className="relative min-h-[420px] flex items-center overflow-visible">
