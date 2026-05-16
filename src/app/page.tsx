@@ -43,7 +43,7 @@ export default function Home() {
              <div className="absolute inset-0 bg-[#0a0a0a]" />
              <div className="absolute top-0 right-0 w-full h-full opacity-35 mix-blend-screen pointer-events-none">
                 <img 
-                  src="/images/hero-banner.png" 
+                  src="/fifa2026/images/hero-banner.png" 
                   alt="" 
                   className="w-full h-full object-cover origin-right scale-105"
                 />

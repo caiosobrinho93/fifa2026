@@ -125,10 +125,10 @@ export function Header() {
           ) : (
             <Link 
               href="/login"
-              className="flex items-center justify-center w-10 h-10 md:w-auto md:h-auto md:gap-3 bg-primary rounded-md hover:scale-105 transition-all shadow-gold-glow"
+              className="flex items-center justify-center w-10 h-10 md:w-auto md:h-auto md:px-5 md:py-3 bg-primary rounded-md hover:scale-105 transition-all shadow-gold-glow text-black"
             >
-              <User size={20} className="text-black" />
-              <span className="hidden md:inline font-black text-xs md:text-sm uppercase tracking-wider text-black ml-2">Entrar</span>
+              <User size={18} className="text-black shrink-0" />
+              <span className="hidden md:inline font-black text-xs uppercase tracking-widest text-black ml-2">Entrar / Criar Conta</span>
             </Link>
           )}
         </div>
