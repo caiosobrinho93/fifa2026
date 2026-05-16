@@ -55,6 +55,11 @@ export function StickerCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const rarity = rarityOverride || (player.rarity as CardRarity) || 'common';
   
+  const [isMobile, setIsMobile] = React.useState(true);
+  React.useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   
@@ -81,7 +86,7 @@ export function StickerCard({
   }, []);
 
   function handleMouseMove(event: React.MouseEvent<HTMLDivElement>) {
-    if (!cardRef.current) return;
+    if (isMobile || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
@@ -95,6 +100,7 @@ export function StickerCard({
   }
 
   function handleMouseLeave() {
+    if (isMobile) return;
     x.set(0); y.set(0); scaleSpring.set(1);
   }
 
@@ -221,9 +227,9 @@ export function StickerCard({
         onMouseLeave={handleMouseLeave}
         onClick={onClick}
         style={{ 
-          rotateX, 
-          rotateY, 
-          scale: scaleSpring,
+          rotateX: isMobile ? 0 : rotateX, 
+          rotateY: isMobile ? 0 : rotateY, 
+          scale: isMobile ? 1 : scaleSpring,
           borderRadius: isCustom ? `${customConfig.borderRadius}px` : undefined,
           borderColor: isCustom ? customConfig.borderColor : undefined,
           borderWidth: isCustom ? `${customConfig.borderWidth}px` : undefined

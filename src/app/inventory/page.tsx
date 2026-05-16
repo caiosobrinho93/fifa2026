@@ -77,18 +77,14 @@ export default function InventoryPage() {
            {userOwnedPlayers.map((player) => {
              const quantity = userCards[player.id];
              return (
-               <motion.div 
-                 key={player.id}
-                 initial={{ opacity: 0, y: 20 }}
-                 animate={{ opacity: 1, y: 0 }}
-               >
+               <div key={player.id}>
                  <StickerCard 
                    player={player} 
                    isOwned={true} 
                    quantity={quantity}
                    onClick={() => setSelectedPlayer(player)}
                  />
-               </motion.div>
+               </div>
              );
            })}
 
