@@ -434,3 +434,20 @@
   45%, 55% { opacity: 1; }
   100% { transform: translate(20%, 20%); opacity: 0; }
 }
+
+/* Custom Premium Brand Utilities - Fallbacks for Tailwind v4 compatibility */
+.bg-primary {
+  background-color: #3b82f6 !important;
+}
+
+.text-primary {
+  color: #3b82f6 !important;
+}
+
+.border-primary {
+  border-color: #3b82f6 !important;
+}
+
+.shadow-gold-glow {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.45), 0 0 8px rgba(245, 158, 11, 0.25) !important;
+}
