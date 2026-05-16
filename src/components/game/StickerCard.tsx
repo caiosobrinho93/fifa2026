@@ -258,8 +258,8 @@ export function StickerCard({
           />
         )}
 
-        {/* 🌟 PARTICLES */}
-        {((isLegendary && !isCustom) || (isCustom && customConfig.starsGlow)) && (
+        {/* 🌟 PARTICLES (Only on custom preview card to prevent grid lag) */}
+        {isCustom && customConfig.starsGlow && (
            <div className="absolute inset-0 z-30 pointer-events-none overflow-hidden">
               {particles.map((p, i) => (
                 <motion.div
@@ -274,11 +274,16 @@ export function StickerCard({
                   className="absolute bottom-0 w-1 h-1 bg-white rounded-full"
                   style={{ 
                     left: `${p.left}%`,
-                    boxShadow: `0 0 8px ${isCustom ? customConfig.accentColor : '#fbbf24'}`
+                    boxShadow: `0 0 8px ${customConfig.accentColor}`
                   }}
                 />
               ))}
-              
+           </div>
+        )}
+
+        {/* 🌟 LIGHT SHEEN (Extremely lightweight, zero lag) */}
+        {((isLegendary && !isCustom) || (isCustom && customConfig.starsGlow)) && (
+           <div className="absolute inset-0 z-30 pointer-events-none overflow-hidden">
               <motion.div 
                 animate={{ left: ["-100%", "200%"] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
