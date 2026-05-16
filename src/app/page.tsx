@@ -15,7 +15,8 @@ import {
   Zap,
   Star,
   PackageOpen,
-  ChevronRight
+  ChevronRight,
+  User
 } from "lucide-react";
 import Link from 'next/link';
 import { MOCK_PLAYERS } from '@/lib/mock-data';
