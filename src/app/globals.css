@@ -451,3 +451,35 @@
 .shadow-gold-glow {
   box-shadow: 0 0 20px rgba(245, 158, 11, 0.45), 0 0 8px rgba(245, 158, 11, 0.25) !important;
 }
+
+/* Premium Sheen - Pure CSS GPU Accelerated Sweep */
+.premium-sheen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.premium-sheen::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  transform: skewX(-12deg);
+  filter: blur(24px);
+  animation: sheen-sweep 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes sheen-sweep {
+  0% { left: -150%; }
+  100% { left: 200%; }
+}

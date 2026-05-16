@@ -176,7 +176,7 @@ export function StickerCard({
         style={starsStyle}
       >
         {[1, 2, 3, 4, 5].map((star) => (
-          <motion.div key={star} whileHover={{ scale: 1.2 }}>
+          <div key={star} className="hover:scale-125 transition-transform duration-200">
             <Star 
               size={9} 
               className={cn(
@@ -191,7 +191,7 @@ export function StickerCard({
                   : undefined
               }
             />
-          </motion.div>
+          </div>
         ))}
       </div>
     );
@@ -217,11 +217,13 @@ export function StickerCard({
     return "absolute right-[15px] top-[10px]";
   };
 
+  const CardContainer = (isMobile ? 'div' : motion.div) as any;
+
   return (
     <div className={cn("relative group w-full h-full p-[4px]", className)}>
       
       {/* Main Card Body */}
-      <motion.div
+      <CardContainer
         ref={cardRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
@@ -287,15 +289,9 @@ export function StickerCard({
            </div>
         )}
 
-        {/* 🌟 LIGHT SHEEN (Extremely lightweight, zero lag) */}
+        {/* 🌟 LIGHT SHEEN (Pure CSS - 100% GPU accelerated, zero JS lag) */}
         {((isLegendary && !isCustom) || (isCustom && customConfig.starsGlow)) && (
-           <div className="absolute inset-0 z-30 pointer-events-none overflow-hidden">
-              <motion.div 
-                animate={{ left: ["-100%", "200%"] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="absolute top-0 bottom-0 w-full bg-white/5 -skew-x-12 blur-3xl pointer-events-none"
-              />
-           </div>
+          <div className="premium-sheen" />
         )}
 
         {/* STARS */}
@@ -409,7 +405,7 @@ export function StickerCard({
 
         </div>
         
-      </motion.div>
+      </CardContainer>
     </div>
   );
 }
