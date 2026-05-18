@@ -70,19 +70,21 @@ const PACKS: PackConfig[] = [
   }
 ];
 
-const getRandomCards = (count: number): Player[] => {
+const getRandomCards = (pack: PackConfig): Player[] => {
+  // Usar probabilidades específicas do pack em vez de valores fixos
   const weights: Record<string, number> = {
-    common: 60,
-    rare: 25,
-    epic: 10,
-    legendary: 5
+    common: parseFloat(pack.probabilities.common) || 0,
+    rare: parseFloat(pack.probabilities.rare) || 0,
+    epic: parseFloat(pack.probabilities.epic) || 0,
+    legendary: parseFloat(pack.probabilities.legendary) || 0,
   };
 
   const cards: Player[] = [];
   
-  for (let i = 0; i < count; i++) {
-    const rand = Math.random() * 100;
-    let rarity: string = 'common';
+  for (let i = 0; i < pack.cards; i++) {
+    const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+    const rand = Math.random() * totalWeight;
+    let rarity: string = 'rare';
     
     let cumulative = 0;
     for (const [r, weight] of Object.entries(weights)) {
@@ -104,24 +106,32 @@ const getRandomCards = (count: number): Player[] => {
   return cards;
 };
 
+
 export default function PacksPage() {
   const [selectedPack, setSelectedPack] = useState<PackConfig | null>(null);
   const [openedCards, setOpenedCards] = useState<Player[]>([]);
   const [isOpening, setIsOpening] = useState(false);
 
+  // Saldo mock do usuário (futuramente virá do contexto/Supabase)
+  const USER_COINS = 12500;
+  const USER_GEMS = 450;
+
   const handleOpenPack = (pack: PackConfig) => {
-    if (pack.price > 12500 && pack.currency === 'coins') {
-      toast.error("Moedas insuficientes!");
+    // Bug fix: verificar saldo real do usuário vs preço do pack
+    if (pack.currency === 'coins' && pack.price > USER_COINS) {
+      toast.error("Moedas insuficientes!", { description: `Você precisa de ${pack.price} coins.` });
+      return;
+    }
+    if (pack.currency === 'gems' && pack.price > USER_GEMS) {
+      toast.error("Gemas insuficientes!", { description: `Você precisa de ${pack.price} gems.` });
       return;
     }
     
+    // Bug fix: sortear UMA ÚNICA VEZ aqui e armazenar no state
+    const cards = getRandomCards(pack);
+    setOpenedCards(cards);
     setSelectedPack(pack);
     setIsOpening(true);
-    
-    setTimeout(() => {
-      const cards = getRandomCards(pack.cards);
-      setOpenedCards(cards);
-    }, 1500);
   };
 
   const handleClosePackOpener = () => {
@@ -253,7 +263,7 @@ export default function PacksPage() {
       </main>
 
       <AnimatePresence>
-        {isOpening && selectedPack && (
+        {isOpening && selectedPack && openedCards.length > 0 && (
           <PackOpener 
             pack={{
               id: selectedPack.id,
@@ -272,7 +282,7 @@ export default function PacksPage() {
                      selectedPack.id === 'epico' ? 'epic' : 
                      selectedPack.id === 'raro' ? 'rare' : 'common'
             }}
-            cards={openedCards.length > 0 ? openedCards : getRandomCards(selectedPack.cards)}
+            cards={openedCards}
             onClose={handleClosePackOpener}
           />
         )}

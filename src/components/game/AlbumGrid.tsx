@@ -16,8 +16,7 @@ export function AlbumGrid({ players, userCards }: AlbumGridProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const itemsPerPage = 8;
-  
-  const ownedPlayerIds = new Set(userCards.map(c => c.player_id));
+  const ownedPlayerIds = new Set(userCards.map(c => c.card_id));
   const totalPages = Math.ceil(players.length / itemsPerPage);
   
   const currentPlayers = players.slice(

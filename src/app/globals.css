@@ -89,7 +89,26 @@
     font-family: var(--font-bebas);
     letter-spacing: 0.05em;
   }
+
+  /* CSS entrance animations — substitutos do Framer Motion, GPU-accelerated */
+  @keyframes fadeSlideLeft {
+    from { opacity: 0; transform: translateX(-24px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes fadeScaleIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
 }
+
 
 @layer utilities {
   .glass {
@@ -435,17 +454,33 @@
   100% { transform: translate(20%, 20%); opacity: 0; }
 }
 
-/* Custom Premium Brand Utilities - Fallbacks for Tailwind v4 compatibility */
+/* Custom Premium Brand Utilities - Fallbacks para compatibilidade Tailwind v4 */
 .bg-primary {
-  background-color: #3b82f6 !important;
+  background-color: var(--color-primary, #3b82f6);
 }
 
 .text-primary {
-  color: #3b82f6 !important;
+  color: var(--color-primary, #3b82f6);
 }
 
 .border-primary {
-  border-color: #3b82f6 !important;
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.bg-success {
+  background-color: var(--color-success, #10b981);
+}
+
+.text-success {
+  color: var(--color-success, #10b981);
+}
+
+.bg-accent {
+  background-color: var(--color-accent, #f59e0b);
+}
+
+.text-accent {
+  color: var(--color-accent, #f59e0b);
 }
 
 .shadow-gold-glow {

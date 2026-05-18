@@ -1,12 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Player } from '@/types/game';
 import { StickerCard } from './StickerCard';
-import { X, Shield, Target, Zap, Trophy, Users, ShoppingCart, RefreshCcw, Star, Box, Tag, Gift, Trash2 } from 'lucide-react';
+import { X, Tag, Gift, RefreshCcw, ShoppingCart, Sparkles, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MOCK_USER_CARDS } from '@/lib/mock-data';
+import { useInventory } from '@/contexts/InventoryContext';
 
 interface CardDetailsModalProps {
   player: Player | null;
@@ -16,123 +16,301 @@ interface CardDetailsModalProps {
   showBuyOption?: boolean;
 }
 
+const rarityConfig = {
+  common: {
+    gradient: 'from-slate-800 to-slate-900',
+    border: 'border-slate-600/40',
+    glow: 'rgba(100,116,139,0.5)',
+    accent: '#64748b',
+    label: 'COMUM',
+    badge: 'bg-slate-700 text-slate-300',
+    shimmer: '#64748b',
+  },
+  rare: {
+    gradient: 'from-blue-950 to-slate-900',
+    border: 'border-blue-500/40',
+    glow: 'rgba(59,130,246,0.6)',
+    accent: '#3b82f6',
+    label: 'RARO',
+    badge: 'bg-blue-900/60 text-blue-300',
+    shimmer: '#3b82f6',
+  },
+  epic: {
+    gradient: 'from-purple-950 to-slate-900',
+    border: 'border-purple-500/50',
+    glow: 'rgba(168,85,247,0.7)',
+    accent: '#a855f7',
+    label: 'ÉPICO',
+    badge: 'bg-purple-900/60 text-purple-300',
+    shimmer: '#a855f7',
+  },
+  legendary: {
+    gradient: 'from-amber-950 to-yellow-950',
+    border: 'border-amber-400/60',
+    glow: 'rgba(251,191,36,0.8)',
+    accent: '#fbbf24',
+    label: 'LENDÁRIO',
+    badge: 'bg-amber-900/60 text-amber-300',
+    shimmer: '#fbbf24',
+  },
+};
+
 export function CardDetailsModal({ player, isOpen, onClose, onBuy, showBuyOption = true }: CardDetailsModalProps) {
+  const { userCards } = useInventory();
+
+  // ── Hooks SEMPRE antes de qualquer return condicional ──────────────────────
+  const legendaryParticles = useMemo(() =>
+    Array.from({ length: 16 }).map((_, i) => ({
+      left: `${((i * 43 + 7) % 85) + 7}%`,
+      duration: 2.5 + (i % 4) * 0.5,
+      delay: (i * 0.25) % 2.5,
+      size: i % 3 === 0 ? 3 : 2,
+    })), []);
+
+  const lightRays = useMemo(() =>
+    Array.from({ length: 8 }).map((_, i) => ({
+      rotate: i * 45,
+      opacity: 0.04 + (i % 2) * 0.03,
+    })), []);
+
+  // Early return APÓS todos os hooks
   if (!player) return null;
 
-  const userCard = MOCK_USER_CARDS.find(c => c.player_id === player.id);
-  const quantity = userCard?.quantity || 0;
+  const quantity    = userCards[player.id] || 0;
+  const cfg         = rarityConfig[player.rarity as keyof typeof rarityConfig] ?? rarityConfig.common;
+  const isLegendary = player.rarity === 'legendary';
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 md:p-4 font-outfit overflow-hidden">
-          {/* Overlay Sólido e Escuro */}
+        <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 font-outfit">
+          {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/98 backdrop-blur-md"
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm"
           />
-                   <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+
+          {/* Modal */}
+          <motion.div
+            initial={{ opacity: 0, y: isLegendary ? 0 : 60, scale: isLegendary ? 0.6 : 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="relative w-full max-w-sm bg-nebula border border-white/10 rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden p-6 md:p-8 flex flex-col items-center gap-8"
+            exit={{ opacity: 0, y: 60, scale: 0.95 }}
+            transition={isLegendary
+              ? { type: 'spring', damping: 16, stiffness: 180 }
+              : { type: 'spring', damping: 20, stiffness: 200 }
+            }
+            className={cn(
+              'relative w-full sm:max-w-sm rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden',
+              'bg-gradient-to-b', cfg.gradient,
+              'border', cfg.border,
+            )}
+            style={{ boxShadow: `0 0 80px ${cfg.glow}, 0 40px 80px rgba(0,0,0,0.8)` }}
           >
-            {/* Close Button */}
-            <button 
-               onClick={onClose} 
-               className="absolute top-4 right-4 p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all text-white/40 hover:text-white z-50"
+            {/* ═══ ANIMAÇÃO LENDÁRIA — efeito nas bordas, não no centro ═══ */}
+            {isLegendary && (
+              <>
+                {/* Vignette dourada nos cantos */}
+                <div
+                  className="absolute inset-0 pointer-events-none z-0"
+                  style={{
+                    background: 'radial-gradient(ellipse at 0% 0%, rgba(251,191,36,0.12) 0%, transparent 50%), radial-gradient(ellipse at 100% 0%, rgba(251,191,36,0.08) 0%, transparent 45%), radial-gradient(ellipse at 50% 100%, rgba(251,191,36,0.15) 0%, transparent 55%)',
+                  }}
+                />
+
+                {/* Partículas LATERAIS — não sobrepõem o card central */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                  {legendaryParticles.slice(0, 8).map((p, i) => (
+                    <motion.div
+                      key={`left-${i}`}
+                      animate={{ y: ['100%', '-10%'], opacity: [0, 0.7, 0] }}
+                      transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
+                      className="absolute rounded-full bg-amber-300"
+                      style={{
+                        left: `${((i * 17 + 5) % 14) + 1}%`, // apenas margem esquerda 1–15%
+                        bottom: 0, width: p.size, height: p.size,
+                        boxShadow: `0 0 ${p.size * 3}px rgba(251,191,36,0.8)`,
+                      }}
+                    />
+                  ))}
+                  {legendaryParticles.slice(8, 16).map((p, i) => (
+                    <motion.div
+                      key={`right-${i}`}
+                      animate={{ y: ['100%', '-10%'], opacity: [0, 0.7, 0] }}
+                      transition={{ duration: p.duration, delay: p.delay + 0.5, repeat: Infinity, ease: 'easeInOut' }}
+                      className="absolute rounded-full bg-amber-300"
+                      style={{
+                        right: `${((i * 13 + 3) % 14) + 1}%`, // apenas margem direita 1–15%
+                        bottom: 0, width: p.size, height: p.size,
+                        boxShadow: `0 0 ${p.size * 3}px rgba(251,191,36,0.8)`,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Borda pulsante suave */}
+                <motion.div
+                  animate={{ opacity: [0.3, 0.7, 0.3] }}
+                  transition={{ duration: 2.5, repeat: Infinity }}
+                  className="absolute inset-0 rounded-t-[2.5rem] sm:rounded-[2.5rem] pointer-events-none z-0"
+                  style={{ boxShadow: 'inset 0 0 30px rgba(251,191,36,0.15), inset 0 0 1px rgba(251,191,36,0.5)' }}
+                />
+              </>
+            )}
+            {/* Shimmer animado por raridade */}
+            <motion.div
+              animate={{ x: ['-100%', '200%'] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', repeatDelay: 2 }}
+              className="absolute inset-y-0 w-1/3 skew-x-12 pointer-events-none opacity-10 z-0"
+              style={{ background: `linear-gradient(90deg, transparent, ${cfg.shimmer}, transparent)` }}
+            />
+
+            {/* Aura de raridade no topo */}
+            <div
+              className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 rounded-full"
+              style={{ background: cfg.accent, boxShadow: `0 0 20px ${cfg.glow}` }}
+            />
+
+            {/* Close */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 z-50 p-2 bg-white/5 hover:bg-white/15 rounded-full transition-all text-white/50 hover:text-white"
             >
-               <X size={20} />
+              <X size={18} />
             </button>
 
-            {/* The Hero Asset */}
-            <div className="relative group mt-4">
-               {/* Prismatic Aura */}
-               <div className="absolute -inset-16 blur-[60px] opacity-20 bg-gradient-to-r from-cyan-500 via-emerald-500 to-magenta-500 animate-spin-slow" />
-               
-               <div className="relative z-10 transition-transform duration-500 group-hover:scale-105">
-                  <StickerCard 
-                     player={player} 
-                     isOwned={true} 
-                     className="w-[200px] md:w-[240px] shadow-2xl" 
+            <div className="relative z-10 flex flex-col items-center gap-5 p-6 pt-8">
+              {/* Badge de raridade — versão especial para lendário */}
+              {isLegendary ? (
+                <motion.div
+                  animate={{ scale: [1, 1.08, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  className="flex items-center gap-2 px-5 py-1.5 rounded-full bg-amber-900/60 border border-amber-400/60"
+                  style={{ boxShadow: '0 0 20px rgba(251,191,36,0.4)' }}
+                >
+                  <Crown size={12} className="text-amber-400" fill="currentColor" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">LENDÁRIO</span>
+                  <Crown size={12} className="text-amber-400" fill="currentColor" />
+                </motion.div>
+              ) : (
+                <span className={cn('px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest', cfg.badge)}>
+                  {cfg.label}
+                </span>
+              )}
+
+              {/* Card visual */}
+              <div className="relative">
+                <motion.div
+                  animate={{ opacity: [0.3, 0.7, 0.3] }}
+                  transition={{ duration: isLegendary ? 1.5 : 2.5, repeat: Infinity }}
+                  className="absolute -inset-8 blur-3xl rounded-full pointer-events-none"
+                  style={{ background: `radial-gradient(circle, ${cfg.glow}, transparent)` }}
+                />
+                {/* Levitate suave para lendários */}
+                <motion.div
+                  animate={isLegendary ? { y: [0, -10, 0], rotateZ: [-1, 1, -1] } : {}}
+                  transition={isLegendary ? { duration: 3, repeat: Infinity, ease: 'easeInOut' } : {}}
+                  whileHover={{ scale: 1.06, rotateY: 8 }}
+                  className="w-[170px] md:w-[200px] relative z-10"
+                  style={{ perspective: 800 }}
+                >
+                  <StickerCard
+                    player={player}
+                    isOwned={true}
+                    isShiny={['legendary', 'epic'].includes(player.rarity)}
+                    className="shadow-2xl"
                   />
-               </div>
-            </div>
+                </motion.div>
+              </div>
 
-            {/* Action Menu: Icon-Style Command Dock */}
-            <div className="w-full space-y-8 relative z-10">
-               <div className="text-center">
-<h2 className="text-3xl md:text-4xl font-black italic uppercase font-bebas text-prismatic tracking-[0.25em] leading-tight px-2">
-                      {player.name}
-                   </h2>
-                  <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.4em] mt-3 flex items-center justify-center gap-2">
-                     <span className="w-8 h-px bg-white/10" />
-                     Protocol_ID: #{player.id.toUpperCase()}
-                     <span className="w-8 h-px bg-white/10" />
-                  </p>
-               </div>
-
-               <div className="flex justify-center items-center gap-4">
-                  {/* MAIN ACTION: ACQUIRE (if applicable) */}
-                  {showBuyOption ? (
-                     <button 
-                        onClick={onBuy}
-                        title="Adquirir Ativo"
-                        className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-cyan-700 text-white rounded-2xl flex items-center justify-center shadow-[0_10px_30px_rgba(6,182,212,0.4)] hover:scale-110 active:scale-95 transition-all"
-                     >
-                        <ShoppingCart size={24} />
-                     </button>
-                  ) : (
-                     /* MARKETPLACE ICON */
-                     <button 
-                        title="Anunciar no Mercado"
-                        className="w-16 h-16 glass-cyan text-cyan-400 rounded-2xl flex items-center justify-center hover:bg-cyan-500/20 transition-all group"
-                     >
-                        <Tag size={24} className="group-hover:rotate-12 transition-transform" />
-                     </button>
-                  )}
-
-                  {/* GIFT ICON */}
-                  <button 
-                     title="Enviar Presente"
-                     className="w-16 h-16 glass text-white/60 rounded-2xl flex items-center justify-center hover:text-white hover:bg-white/10 transition-all"
+              {/* Info */}
+              <div className="text-center space-y-1">
+                {isLegendary ? (
+                  <motion.h2
+                    animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                    className="text-3xl font-black italic uppercase font-bebas tracking-wider leading-none"
+                    style={{
+                      background: 'linear-gradient(90deg, #fbbf24, #f59e0b, #fcd34d, #fbbf24)',
+                      backgroundSize: '200% auto',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}
                   >
-                     <Gift size={24} />
-                  </button>
-
-                  {/* TRADE ICON */}
-                  <button 
-                     title="Solicitar Troca"
-                     className="w-16 h-16 glass text-white/60 rounded-2xl flex items-center justify-center hover:text-white hover:bg-white/10 transition-all"
+                    {player.name}
+                  </motion.h2>
+                ) : (
+                  <h2 className="text-3xl font-black italic uppercase font-bebas tracking-wider text-white leading-none">
+                    {player.name}
+                  </h2>
+                )}
+                <p className="text-[10px] text-white/40 font-bold uppercase tracking-[0.3em]">
+                  {player.country} · {player.position} · {player.overall} OVR
+                </p>
+                {quantity > 0 && (
+                  <div
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full mt-1"
+                    style={{ background: `${cfg.accent}20`, border: `1px solid ${cfg.accent}40` }}
                   >
-                     <RefreshCcw size={24} />
-                  </button>
+                    <Sparkles size={10} style={{ color: cfg.accent }} />
+                    <span className="text-[10px] font-black" style={{ color: cfg.accent }}>
+                      {quantity}x no inventário
+                    </span>
+                  </div>
+                )}
+              </div>
 
-                  {/* DESTROY ICON */}
-                  <button 
-                     title="Destruir Ativo (Burn)"
-                     className="w-16 h-16 glass-magenta text-magenta-500 rounded-2xl flex items-center justify-center hover:bg-magenta-500/20 transition-all group"
-                  >
-                     <Trash2 size={24} className="group-hover:scale-110 transition-transform" />
-                  </button>
-               </div>
-
-               {quantity > 0 && (
-                 <div className="flex justify-center">
-                    <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl flex items-center gap-3">
-                       <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Ownership_Certified</span>
-                       <div className="w-px h-3 bg-white/10" />
-                       <span className="text-sm font-black text-cyan-400 italic font-bebas">{quantity}X Units</span>
+              {/* Stats (se disponíveis) */}
+              {player.stats && (
+                <div className="w-full grid grid-cols-3 gap-2">
+                  {Object.entries(player.stats).map(([key, val]) => (
+                    <div key={key} className="flex flex-col items-center p-2 rounded-xl bg-white/5 border border-white/5">
+                      <span className="text-lg font-black italic font-bebas" style={{ color: cfg.accent }}>{val}</span>
+                      <span className="text-[8px] text-white/30 uppercase tracking-widest">{key}</span>
                     </div>
-                 </div>
-               )}
-            </div>
+                  ))}
+                </div>
+              )}
 
-            {/* Bottom Glow */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />
+              {/* Ações */}
+              <div className="flex items-center gap-3 w-full pt-1">
+                {showBuyOption ? (
+                  <button
+                    onClick={onBuy}
+                    className="flex-1 py-3.5 rounded-xl font-black italic uppercase tracking-widest text-xs text-black flex items-center justify-center gap-2 transition-all active:scale-95"
+                    style={{ background: cfg.accent, boxShadow: `0 8px 24px ${cfg.glow}` }}
+                  >
+                    <ShoppingCart size={16} />
+                    Adquirir
+                  </button>
+                ) : (
+                  <button
+                    className="flex-1 py-3.5 rounded-xl font-black italic uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all active:scale-95 border"
+                    style={{ borderColor: `${cfg.accent}50`, color: cfg.accent, background: `${cfg.accent}10` }}
+                  >
+                    <Tag size={16} />
+                    Vender
+                  </button>
+                )}
+                <button
+                  title="Enviar como presente"
+                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all"
+                >
+                  <Gift size={18} />
+                </button>
+                <button
+                  title="Propor troca"
+                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all"
+                >
+                  <RefreshCcw size={18} />
+                </button>
+              </div>
+
+              {/* Spacer seguro para iOS */}
+              <div className="h-safe-bottom sm:hidden" style={{ height: 'env(safe-area-inset-bottom, 8px)' }} />
+            </div>
           </motion.div>
         </div>
       )}

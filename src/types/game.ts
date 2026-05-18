@@ -61,7 +61,6 @@ export interface UserCard {
   acquired_at: string;
   card?: Card;
   // Para compatibilidade com código antigo
-  player_id?: string;
   is_shiny?: boolean;
   is_locked?: boolean;
   is_golden?: boolean;

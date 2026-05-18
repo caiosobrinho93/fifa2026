@@ -12,7 +12,7 @@ import {
   Sparkles,
   ArrowUpDown
 } from "lucide-react";
-import { MOCK_PLAYERS, MOCK_USER_CARDS } from '@/lib/mock-data';
+import { MOCK_PLAYERS } from '@/lib/mock-data';
 import { StickerCard } from '@/components/game/StickerCard';
 import { CardDetailsModal } from '@/components/game/CardDetailsModal';
 import { cn } from '@/lib/utils';
@@ -76,14 +76,42 @@ export default function InventoryPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-4">
            {userOwnedPlayers.map((player) => {
              const quantity = userCards[player.id];
+             const isDouble = quantity >= 2;
+             const isHigh   = quantity >= 5;
              return (
-               <div key={player.id}>
-                 <StickerCard 
-                   player={player} 
-                   isOwned={true} 
+               <div key={player.id} className="relative">
+                 <StickerCard
+                   player={player}
+                   isOwned={true}
                    quantity={quantity}
                    onClick={() => setSelectedPlayer(player)}
                  />
+                 {/* Badge de quantidade estilo Clash Royale */}
+                 {isDouble && (
+                   <motion.div
+                     initial={{ scale: 0, rotate: -12 }}
+                     animate={{ scale: 1, rotate: -8 }}
+                     transition={{ type: 'spring', damping: 10, stiffness: 300 }}
+                     className="absolute -top-3 -right-2 z-30 pointer-events-none"
+                   >
+                     <div
+                       className="flex items-center justify-center font-black italic font-bebas leading-none px-2 py-0.5 rounded-lg shadow-2xl border"
+                       style={{
+                         fontSize: quantity >= 10 ? '20px' : '26px',
+                         color: isHigh ? '#fbbf24' : '#ffffff',
+                         background: isHigh
+                           ? 'linear-gradient(135deg, #92400e, #78350f)'
+                           : 'linear-gradient(135deg, #1e3a5f, #1e1b4b)',
+                         borderColor: isHigh ? 'rgba(251,191,36,0.6)' : 'rgba(59,130,246,0.4)',
+                         boxShadow: isHigh
+                           ? '0 4px 20px rgba(251,191,36,0.5), inset 0 1px 0 rgba(255,255,255,0.1)'
+                           : '0 4px 20px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
+                       }}
+                     >
+                       ×{quantity}
+                     </div>
+                   </motion.div>
+                 )}
                </div>
              );
            })}

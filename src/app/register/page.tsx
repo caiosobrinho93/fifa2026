@@ -36,7 +36,7 @@ export default function RegisterPage() {
     setLoading(false);
 
     if (success) {
-      router.push('/login');
+      router.push('/'); // auto-login já feito no AuthContext
     }
   };
 

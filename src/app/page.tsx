@@ -3,7 +3,6 @@
 import React from 'react';
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
-import { motion } from "framer-motion";
 import { 
   Trophy, 
   Sparkles, 
@@ -57,11 +56,10 @@ export default function Home() {
           </div>
 
           <div className="relative z-10 w-full grid lg:grid-cols-12 gap-8 items-center px-6 md:px-12 py-8">
-            <motion.div 
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="lg:col-span-7 space-y-6"
-            >
+          <div 
+            style={{ animation: 'fadeSlideLeft 0.6s ease forwards' }}
+            className="lg:col-span-7 space-y-6"
+          >
               {/* Tactical Badge */}
               <div className="flex items-center gap-4">
                  <div className="h-[2px] w-8 bg-primary" />
@@ -93,14 +91,13 @@ export default function Home() {
                   </Link>
                 </div>
               </div>
-            </motion.div>
+          </div>
 
-            {/* Featured Hero Card - Clean Display */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="lg:col-span-5 flex justify-center lg:justify-end relative"
-            >
+          {/* Featured Hero Card */}
+          <div 
+            style={{ animation: 'fadeScaleIn 0.7s ease forwards' }}
+            className="lg:col-span-5 flex justify-center lg:justify-end relative"
+          >
               <div className="relative scale-90 md:scale-95 lg:scale-100">
                 {/* Aura Effects */}
                 <div className="absolute inset-0 bg-primary/10 blur-[80px] rounded-full" />
@@ -118,7 +115,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+          </div>
           </div>
         </section>
 
@@ -140,19 +137,16 @@ export default function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-8">
             {trendingPlayers.map((player, index) => (
-              <motion.div 
+              <div 
                 key={player.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                style={{ animation: `fadeUp 0.5s ease forwards`, animationDelay: `${index * 80}ms`, opacity: 0 }}
               >
                 <StickerCard 
                   player={player} 
                   isOwned={true} 
                   onClick={() => setSelectedPlayer(player)}
                 />
-              </motion.div>
+              </div>
             ))}
           </div>
         </section>
