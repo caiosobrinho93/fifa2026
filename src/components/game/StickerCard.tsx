@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useRef, useMemo } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import React, { useRef } from 'react';
 import { Player } from '@/types/game';
 import { cn } from '@/lib/utils';
 import { Star } from 'lucide-react';
@@ -54,55 +53,6 @@ export function StickerCard({
 }: StickerCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const rarity = rarityOverride || (player.rarity as CardRarity) || 'common';
-  
-  const [isMobile, setIsMobile] = React.useState(true);
-  React.useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
-  }, []);
-
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  
-  const springConfig = { stiffness: 150, damping: 20 };
-  const rotateX = useSpring(useTransform(y, [-100, 100], [15, -15]), springConfig);
-  const rotateY = useSpring(useTransform(x, [-100, 100], [-15, 15]), springConfig);
-  const scaleSpring = useSpring(1, { stiffness: 300, damping: 20 });
-
-  // Generate deterministic particles values to avoid Math.random() in render loop
-  const particles = useMemo(() => {
-    return [...Array(20)].map((_, i) => {
-      // Simple pseudo-random deterministic generation based on index
-      const sin1 = Math.sin(i * 123.456);
-      const sin2 = Math.sin(i * 654.321);
-      const cos1 = Math.cos(i * 789.101);
-      
-      return {
-        left: 15 + (sin1 + 1) * 35, // 15% to 85%
-        xRange: [sin2 * 60, cos1 * 90],
-        duration: 2 + Math.abs(sin1) * 2,
-        delay: Math.abs(cos1) * 4
-      };
-    });
-  }, []);
-
-  function handleMouseMove(event: React.MouseEvent<HTMLDivElement>) {
-    if (isMobile || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-    const xPct = (mouseX / width - 0.5) * 100;
-    const yPct = (mouseY / height - 0.5) * 100;
-    x.set(xPct);
-    y.set(yPct);
-    scaleSpring.set(1.02);
-  }
-
-  function handleMouseLeave() {
-    if (isMobile) return;
-    x.set(0); y.set(0); scaleSpring.set(1);
-  }
 
   const getCountryCode = (country: string) => {
     const map: Record<string, string> = {
@@ -217,21 +167,16 @@ export function StickerCard({
     return "absolute right-[15px] top-[10px]";
   };
 
-  const CardContainer = (isMobile ? 'div' : motion.div) as any;
+
 
   return (
     <div className={cn("relative group w-full h-full p-[4px]", className)}>
       
       {/* Main Card Body */}
-      <CardContainer
+      <div
         ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
         onClick={onClick}
         style={{ 
-          rotateX: isMobile ? 0 : rotateX, 
-          rotateY: isMobile ? 0 : rotateY, 
-          scale: isMobile ? 1 : scaleSpring,
           borderRadius: isCustom ? `${customConfig.borderRadius}px` : undefined,
           borderColor: isCustom ? customConfig.borderColor : undefined,
           borderWidth: isCustom ? `${customConfig.borderWidth}px` : undefined
@@ -266,28 +211,7 @@ export function StickerCard({
           />
         )}
 
-        {/* 🌟 PARTICLES (Only on custom preview card to prevent grid lag) */}
-        {isCustom && customConfig.starsGlow && (
-           <div className="absolute inset-0 z-30 pointer-events-none overflow-hidden">
-              {particles.map((p, i) => (
-                <motion.div
-                  key={i}
-                  animate={{ 
-                    y: [100, -350],
-                    x: p.xRange,
-                    opacity: [0, 1, 0],
-                    scale: [0, 1.2, 0]
-                  }}
-                  transition={{ duration: p.duration, repeat: Infinity, delay: p.delay }}
-                  className="absolute bottom-0 w-1 h-1 bg-white rounded-full"
-                  style={{ 
-                    left: `${p.left}%`,
-                    boxShadow: `0 0 8px ${customConfig.accentColor}`
-                  }}
-                />
-              ))}
-           </div>
-        )}
+
 
         {/* 🌟 LIGHT SHEEN (Pure CSS - 100% GPU accelerated, zero JS lag) */}
         {((isLegendary && !isCustom) || (isCustom && customConfig.starsGlow)) && (
@@ -405,7 +329,7 @@ export function StickerCard({
 
         </div>
         
-      </CardContainer>
+      </div>
     </div>
   );
 }

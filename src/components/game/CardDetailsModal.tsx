@@ -59,19 +59,7 @@ export function CardDetailsModal({ player, isOpen, onClose, onBuy, showBuyOption
   const { userCards } = useInventory();
 
   // ── Hooks SEMPRE antes de qualquer return condicional ──────────────────────
-  const legendaryParticles = useMemo(() =>
-    Array.from({ length: 16 }).map((_, i) => ({
-      left: `${((i * 43 + 7) % 85) + 7}%`,
-      duration: 2.5 + (i % 4) * 0.5,
-      delay: (i * 0.25) % 2.5,
-      size: i % 3 === 0 ? 3 : 2,
-    })), []);
 
-  const lightRays = useMemo(() =>
-    Array.from({ length: 8 }).map((_, i) => ({
-      rotate: i * 45,
-      opacity: 0.04 + (i % 2) * 0.03,
-    })), []);
 
   // Early return APÓS todos os hooks
   if (!player) return null;
@@ -95,13 +83,10 @@ export function CardDetailsModal({ player, isOpen, onClose, onBuy, showBuyOption
 
           {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, y: isLegendary ? 0 : 60, scale: isLegendary ? 0.6 : 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 60, scale: 0.95 }}
-            transition={isLegendary
-              ? { type: 'spring', damping: 16, stiffness: 180 }
-              : { type: 'spring', damping: 20, stiffness: 200 }
-            }
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.2 }}
             className={cn(
               'relative w-full sm:max-w-sm rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden',
               'bg-gradient-to-b', cfg.gradient,
@@ -119,53 +104,8 @@ export function CardDetailsModal({ player, isOpen, onClose, onBuy, showBuyOption
                     background: 'radial-gradient(ellipse at 0% 0%, rgba(251,191,36,0.12) 0%, transparent 50%), radial-gradient(ellipse at 100% 0%, rgba(251,191,36,0.08) 0%, transparent 45%), radial-gradient(ellipse at 50% 100%, rgba(251,191,36,0.15) 0%, transparent 55%)',
                   }}
                 />
-
-                {/* Partículas LATERAIS — não sobrepõem o card central */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                  {legendaryParticles.slice(0, 8).map((p, i) => (
-                    <motion.div
-                      key={`left-${i}`}
-                      animate={{ y: ['100%', '-10%'], opacity: [0, 0.7, 0] }}
-                      transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
-                      className="absolute rounded-full bg-amber-300"
-                      style={{
-                        left: `${((i * 17 + 5) % 14) + 1}%`, // apenas margem esquerda 1–15%
-                        bottom: 0, width: p.size, height: p.size,
-                        boxShadow: `0 0 ${p.size * 3}px rgba(251,191,36,0.8)`,
-                      }}
-                    />
-                  ))}
-                  {legendaryParticles.slice(8, 16).map((p, i) => (
-                    <motion.div
-                      key={`right-${i}`}
-                      animate={{ y: ['100%', '-10%'], opacity: [0, 0.7, 0] }}
-                      transition={{ duration: p.duration, delay: p.delay + 0.5, repeat: Infinity, ease: 'easeInOut' }}
-                      className="absolute rounded-full bg-amber-300"
-                      style={{
-                        right: `${((i * 13 + 3) % 14) + 1}%`, // apenas margem direita 1–15%
-                        bottom: 0, width: p.size, height: p.size,
-                        boxShadow: `0 0 ${p.size * 3}px rgba(251,191,36,0.8)`,
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Borda pulsante suave */}
-                <motion.div
-                  animate={{ opacity: [0.3, 0.7, 0.3] }}
-                  transition={{ duration: 2.5, repeat: Infinity }}
-                  className="absolute inset-0 rounded-t-[2.5rem] sm:rounded-[2.5rem] pointer-events-none z-0"
-                  style={{ boxShadow: 'inset 0 0 30px rgba(251,191,36,0.15), inset 0 0 1px rgba(251,191,36,0.5)' }}
-                />
               </>
             )}
-            {/* Shimmer animado por raridade */}
-            <motion.div
-              animate={{ x: ['-100%', '200%'] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', repeatDelay: 2 }}
-              className="absolute inset-y-0 w-1/3 skew-x-12 pointer-events-none opacity-10 z-0"
-              style={{ background: `linear-gradient(90deg, transparent, ${cfg.shimmer}, transparent)` }}
-            />
 
             {/* Aura de raridade no topo */}
             <div
@@ -184,16 +124,14 @@ export function CardDetailsModal({ player, isOpen, onClose, onBuy, showBuyOption
             <div className="relative z-10 flex flex-col items-center gap-5 p-6 pt-8">
               {/* Badge de raridade — versão especial para lendário */}
               {isLegendary ? (
-                <motion.div
-                  animate={{ scale: [1, 1.08, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                <div
                   className="flex items-center gap-2 px-5 py-1.5 rounded-full bg-amber-900/60 border border-amber-400/60"
                   style={{ boxShadow: '0 0 20px rgba(251,191,36,0.4)' }}
                 >
                   <Crown size={12} className="text-amber-400" fill="currentColor" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">LENDÁRIO</span>
                   <Crown size={12} className="text-amber-400" fill="currentColor" />
-                </motion.div>
+                </div>
               ) : (
                 <span className={cn('px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest', cfg.badge)}>
                   {cfg.label}
@@ -202,27 +140,18 @@ export function CardDetailsModal({ player, isOpen, onClose, onBuy, showBuyOption
 
               {/* Card visual */}
               <div className="relative">
-                <motion.div
-                  animate={{ opacity: [0.3, 0.7, 0.3] }}
-                  transition={{ duration: isLegendary ? 1.5 : 2.5, repeat: Infinity }}
-                  className="absolute -inset-8 blur-3xl rounded-full pointer-events-none"
+                <div
+                  className="absolute -inset-8 blur-3xl rounded-full pointer-events-none opacity-40"
                   style={{ background: `radial-gradient(circle, ${cfg.glow}, transparent)` }}
                 />
-                {/* Levitate suave para lendários */}
-                <motion.div
-                  animate={isLegendary ? { y: [0, -10, 0], rotateZ: [-1, 1, -1] } : {}}
-                  transition={isLegendary ? { duration: 3, repeat: Infinity, ease: 'easeInOut' } : {}}
-                  whileHover={{ scale: 1.06, rotateY: 8 }}
-                  className="w-[170px] md:w-[200px] relative z-10"
-                  style={{ perspective: 800 }}
-                >
+                <div className="w-[170px] md:w-[200px] relative z-10 mx-auto">
                   <StickerCard
                     player={player}
                     isOwned={true}
                     isShiny={['legendary', 'epic'].includes(player.rarity)}
                     className="shadow-2xl"
                   />
-                </motion.div>
+                </div>
               </div>
 
               {/* Info */}
