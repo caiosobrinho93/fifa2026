@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Coins, Gem, Swords } from 'lucide-react';
+import { Trophy, Coins, Gem, Swords, PackageOpen } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -83,6 +83,15 @@ export function Header() {
               </div>
             </div>
           )}
+
+          {/* Botão de Pacotes EViDENTE no Mobile */}
+          <Link 
+            href="/packs" 
+            className="md:hidden flex items-center gap-1.5 bg-primary/20 border border-primary/50 text-primary px-3 py-1.5 rounded-md shadow-[0_0_15px_rgba(59,130,246,0.3)] active:scale-95 transition-all"
+          >
+            <PackageOpen size={14} />
+            <span className="text-[10px] font-black uppercase tracking-wider">Pacotes</span>
+          </Link>
           <UserAvatarMenu />
         </div>
       </div>
